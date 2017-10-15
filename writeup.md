@@ -123,6 +123,11 @@ From the distribution of images, I observed that the data for some classes is fa
 One more reason why I wanted to infuse additional data into the dataset is to achieve the **Translation**, **Rotation**, **Size** and 
 **Illumination** variance
 
+Here is a comparison of gray scale image and augmented image
+
+![Original Image](folder_for_writeup/image_augmented.png)
+
+
 
 
 
