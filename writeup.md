@@ -53,3 +53,7 @@ Number of testing examples = 12630
 Image data shape = (39209, 32, 32, 3)  
 Number of classes = 43  
 
+Here is a visualization of a sample image from each class
+
+![Original Image](folder_for_writeup/image_visualization.png)
+
