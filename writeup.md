@@ -53,7 +53,37 @@ Number of testing examples = 12630
 Image data shape = (39209, 32, 32, 3)  
 Number of classes = 43  
 
-Here is a visualization of a sample image from each class
+Here is a visualization of a sample image from each class achieved using the following code snippet
 
+```
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+num_of_samples=[]
+plt.figure(figsize=(10, 16.5))
+for i in range(0, n_classes):
+    plt.subplot(11, 4, i+1)
+    x_select = X_train[y_train == i]
+    plt.imshow(x_select[0, :, :, :]) #draw the first image of each class
+    plt.title(i)
+    plt.axis('off')
+    num_of_samples.append(len(x_select))
+plt.show()
+```
 ![Original Image](folder_for_writeup/image_visualization.png)
+
+Here is the distribution of training images based on the output classes achieved using the following code snippet
+
+```
+plt.figure(figsize=(12, 4))
+plt.bar(range(0, n_classes), num_of_samples)
+plt.title("Distribution of the train dataset")
+plt.xlabel("Class number")
+plt.ylabel("Number of images")
+plt.show()
+```
+
+![Original Image](folder_for_writeup/image_distribution.png)
+
+
 
