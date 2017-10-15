@@ -85,5 +85,38 @@ plt.show()
 
 ![Original Image](folder_for_writeup/image_distribution.png)
 
+### Design and Test a Model Architecture
+
+#### 1. How I preprocessed the image data. What techniques were chosen and why did I chose these techniques? 
+
+Images from the sample dataset are in color (have all three dimensions RGB), I have converted them to gray scale as it will reduce the
+memory requirement and also speed up the training without loosing any needed details. 
+
+After converting them to gray scale, I have normalized the data by substracting 128 from each pixel value and dividing it by 128. This will ensure that the all the features in the input will have zero mean and equal variance.
+
+Few advantages of normalizing the data are:
+
+1. It makes your training faster.
+2. It prevents you from getting stuck in local optima.
+
+```
+# Convert to grayscale
+X_train_rgb = X_train
+X_train_gry = np.sum(X_train/3, axis=3, keepdims=True)
+
+X_test_rgb = X_test
+X_test_gry = np.sum(X_test/3, axis=3, keepdims=True)
+
+X_train = X_train_gry
+X_test = X_test_gry
+
+#Normalize
+X_train_norm = (X_train - 128)/128
+X_test_norm = (X_test -128)/128
+```
+
+
+
+
 
 
