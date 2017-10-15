@@ -120,12 +120,99 @@ Here is an example of a traffic sign image before and after grayscaling.
 
 From the distribution of images, I observed that the data for some classes is far too less compared to other classes, hence I have augmented the dataset to generate some fake images from the existing images by doing some random scaling, translation, rotation, increasing brightness and smoothing the images.
 
+```
+def random_translate(img):
+    """Applies translation up to px pixels in x and y directions"""
+    rows,cols,_ = img.shape
+    px = 2
+    dx,dy = np.random.randint(-px,px,2)
+    A = np.float32([[1,0,dx],[0,1,dy]])
+    img_trns = cv2.warpAffine(img,A,(cols,rows))
+    img_trns = img_trns[:,:,np.newaxis]
+    return img_trns
+
+def random_scale(img):
+    """Scales image up to px pixels in x and y directions"""
+    rows,cols,_ = img.shape
+    # Pixel limits to transform
+    px = np.random.randint(-2,2)
+    # End Co-ordinates
+    crds1 = np.float32([[px,px],[rows-px,px],[px,cols-px],[rows-px,cols-px]])
+    # Starting Co-ordinates
+    crds2 = np.float32([[0,0],[rows,0],[0,cols],[rows,cols]])
+    P = cv2.getPerspectiveTransform(crds1,crds2)
+    img_scl = cv2.warpPerspective(img,P,(rows,cols))
+    img_scl = img_scl[:,:,np.newaxis]
+    return img_scl
+
+def gaussian_blur(img, kernel_size=3):
+    """Applies a Gaussian Noise kernel"""
+    img_smt = cv2.GaussianBlur(img, (kernel_size, kernel_size), 0)
+    img_smt = img_smt[:,:,np.newaxis]
+    return img_smt
+
+def random_rotate(img):
+    """Rotates image up to ang degrees """
+    c_x,c_y = int(img.shape[0]/2), int(img.shape[1]/2)
+    ang = 30.0*np.random.rand()-15
+    R = cv2.getRotationMatrix2D((c_x, c_y), ang, 1.0)
+    img_rot = cv2.warpAffine(img, R, img.shape[:2])
+    img_rot = img_rot[:,:,np.newaxis]
+    return img_rot
+
+def random_brightness(img):
+    shifted = img + 1.0   # shift to (0,2) range
+    img_max_value = max(shifted.flatten())
+    max_coef = 2.0/img_max_value
+    min_coef = max_coef - 0.1
+    coef = np.random.uniform(min_coef, max_coef)
+    img_brgt = shifted * coef - 1.0
+    return img_brgt
+
+def random_warp(img):
+    rows,cols,_ = img.shape
+    # random scaling coefficients
+    rndx = np.random.rand(3) - 0.5
+    rndx *= cols * 0.06   # this coefficient determines the degree of warping
+    rndy = np.random.rand(3) - 0.5
+    rndy *= rows * 0.06
+    # 3 starting points for transform, 1/4 way from edges
+    x1 = cols/4
+    x2 = 3*cols/4
+    y1 = rows/4
+    y2 = 3*rows/4
+    pts1 = np.float32([[y1,x1],
+                       [y2,x1],
+                       [y1,x2]])
+    pts2 = np.float32([[y1+rndy[0],x1+rndx[0]],
+                       [y2+rndy[1],x1+rndx[1]],
+                       [y1+rndy[2],x2+rndx[2]]])
+    M = cv2.getAffineTransform(pts1,pts2)
+    img_warp = cv2.warpAffine(img,M,(cols,rows))
+    img_warp = img_warp[:,:,np.newaxis]
+    return img_warp
+
+def augment_img(img):
+    """Image augumentation pipeline """
+    img=random_translate(img)
+    img=random_scale(img)
+    img=random_rotate(img)
+    img=random_brightness(img)
+    img=random_warp(img)
+    img_aug=gaussian_blur(img)
+    return img_aug
+ ```
+
 One more reason why I wanted to infuse additional data into the dataset is to achieve the **Translation**, **Rotation**, **Size** and 
 **Illumination** variance
 
 Here is a comparison of gray scale image and augmented image
 
 ![Original Image](folder_for_writeup/image_augmented.png)
+
+Here is how the distribution looks like after infusing augmented data
+
+![Original Image](folder_for_writeup/image_distr_after_augment.png)
 
 
 
