@@ -19,3 +19,37 @@ classify traffic sign from a given image with 95% accuracy. I have used the foll
     of Epochs, batchsizes and learning rates.
 11. Arrived at a working design with optimal hyper parameters that gave a training accuracy of 99% and Testing accuracy of 95%
 12. Tested the model on new images found on web.
+
+## Details of the approach and further explanation of steps
+
+In this section I provide further details about each of the above steps and the reasoning behind them
+
+### Data Set Summary & Exploration
+
+I used numpy to explore the dataset. This Pickle dataset is a dictionary with key value pairs. 
+1. **features** key contains the images as values in 4D array in pixels of dimesions (**num.of observations**X**width**X**height**X**color channels**)
+2. **labels** key contains the classification of the traffic sign as values in 2D array of dimensions (**num.of observations**X**class**)
+
+As the original validation set given in the dataset is less than 20% of the training set, I have put it back into training set and had
+later split the training and validation set to keep them in the raio of 80:20
+
+```
+X_train_orig, y_train_orig = train['features'], train['labels']
+X_valid_orig, y_valid_orig = valid['features'], valid['labels']
+#Concatenating Training and validation data as the original validation data is less than 20% of training data
+X_train = np.concatenate((X_train_orig,X_valid_orig))
+y_train = np.concatenate((y_train_orig,y_valid_orig))
+```
+
+```
+n_train = len(y_train)
+n_test = len(y_test)
+image_shape = X_train.shape
+n_classes = len(np.unique(y_train))
+```
+
+Number of training examples = 39209   
+Number of testing examples = 12630  
+Image data shape = (39209, 32, 32, 3)  
+Number of classes = 43  
+
