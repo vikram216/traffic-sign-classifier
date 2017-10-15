@@ -114,6 +114,17 @@ X_test = X_test_gry
 X_train_norm = (X_train - 128)/128
 X_test_norm = (X_test -128)/128
 ```
+Here is an example of a traffic sign image before and after grayscaling.
+
+![Original Image](folder_for_writeup/image_rgb_gray.png)
+
+From the distribution of images, I observed that the data for some classes is far too less compared to other classes, hence I have augmented the dataset to generate some fake images from the existing images by doing some random scaling, translation, rotation, increasing brightness and smoothing the images.
+
+One more reason why I wanted to infuse additional data into the dataset is to achieve the **Translation**, **Rotation**, **Size** and 
+**Illumination** variance
+
+
+
 
 
 
