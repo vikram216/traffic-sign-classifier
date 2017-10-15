@@ -214,10 +214,42 @@ Here is how the distribution looks like after infusing augmented data
 
 ![Original Image](folder_for_writeup/image_distr_after_augment.png)
 
+With all the pre-processing and data augmentation done, I now split the data into training and validation sets after shuffling
 
+```
+from sklearn.utils import shuffle
+X_train, y_train = shuffle(X_train, y_train)
+print('done')
+```
+```
+print("Old X_train size:",len(X_train))
+from sklearn.model_selection import train_test_split
+X_train, X_valid, y_train, y_valid = train_test_split(X_train, y_train, 
+                                                                test_size=0.20, random_state=42)
+print("New X_train size:",len(X_train))
+print("X_validation size:",len(X_valid))
+```
+Old X_train size: 54710   
+New X_train size: 43768   
+X_validation size: 10942   
 
+```
+print(np.mean(X_train))
+print(np.mean(X_test))
+print(np.mean(X_valid))
+print(X_train.shape)
+print(X_test.shape)
+print(X_valid.shape)
+print(y_train.shape)
+```
 
-
+-0.282008280784   
+-0.358215153428    
+-0.283820187786   
+(43768, 32, 32, 1)   
+(12630, 32, 32, 1)   
+(10942, 32, 32, 1)   
+(43768,)   
 
 
 
