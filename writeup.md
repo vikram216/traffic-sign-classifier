@@ -271,6 +271,9 @@ print('done')
 
 Here is a modified version of LeNet Architecture that I had adapted in this project. Taken from ![here](http://yann.lecun.com/exdb/publis/pdf/sermanet-ijcnn-11.pdf) 
 
+Initially I started with the same LeNet Architecture that was shown in the LeNet lab. This has worked fine and was giving a training 
+accuracy of 96% and testing accuracy of 94.1%. To further improve it, I had adapted this architecture from Sermanet/LeCunn traffic sign classification journal article.
+
 ![Original Image](folder_for_writeup/modifiedLeNet.jpeg)
 
 Here is a description of each layer in this model
@@ -291,9 +294,84 @@ Here is a description of each layer in this model
 |Dropout layer     | Dropout with a keep probability of 0.5 for training 1.0 for testing |
 |Fully connected layer| Fully connected layer with logits output 800x43 |
 
+```
+from tensorflow.contrib.layers import flatten
 
+def LeNet(x):    
+    # Arguments used for tf.truncated_normal, randomly defines variables for the weights and biases for each layer
+    mu = 0
+    sigma = 0.1
+    
+    weights = {'wc1': tf.Variable(tf.random_normal([5, 5, 1, 6],mean=mu,stddev=sigma)),
+               'wc2': tf.Variable(tf.random_normal([5, 5, 6, 16],mean=mu,stddev=sigma)),
+               'wc3': tf.Variable(tf.random_normal([5, 5, 16, 400],mean=mu,stddev=sigma)),
+               'wfc':tf.Variable(tf.random_normal([800,43],mean=mu,stddev=sigma)),
+               }
+    biases = {'bc1':tf.Variable(tf.zeros(6)),
+              'bc2':tf.Variable(tf.zeros(16)),
+              'bc3':tf.Variable(tf.zeros(400)),
+              'bfc':tf.Variable(tf.zeros(43))}
+    
+    # TODO: Layer 1: Convolutional. Input = 32x32x1. Output = 28x28x6.
+    conv1 = tf.nn.conv2d(x,weights['wc1'],strides=[1,1,1,1],padding='VALID')+biases['bc1']
 
+    # TODO: Activation.
+    conv1 = tf.nn.relu(conv1)
+    
+    # TODO: Pooling. Input = 28x28x6. Output = 14x14x6.
+    conv1 = tf.nn.max_pool(conv1,ksize=[1,2,2,1],strides=[1,2,2,1],padding='VALID')
+    
 
+    # TODO: Layer 2: Convolutional. Input = 14x14x6. Output = 10x10x16.
+    conv2 = tf.nn.conv2d(conv1,weights['wc2'],strides=[1,1,1,1],padding='VALID')+biases['bc2']
+    
+    # TODO: Activation.
+    conv2 = tf.nn.relu(conv2)
 
+    # TODO: Pooling. Input = 10x10x16. Output = 5x5x16.
+    conv2 = tf.nn.max_pool(conv2,ksize=[1,2,2,1],strides=[1,2,2,1],padding='VALID')  
+    
+    # TODO: Layer 3: Convolutional. Input = 5x5x16. Output = 1x1x400.
+    conv3 = tf.nn.conv2d(conv2,weights['wc3'],strides=[1,1,1,1],padding='VALID')+biases['bc3']
+    
+    # TODO: Activation.
+    conv3 = tf.nn.relu(conv3)
+    
+    # TODO: Flatten Layer2. Input = 5x5x16. Output = 400.
+    conv2_flat = flatten(conv2)
+    
+    # TODO: Flatten Layer 3. Input = 1x1x400. Output = 400.
+    conv3_flat = flatten(conv3)
+    
+    # Concat Flattened layer2 and Layer3 and . Input = 400 + 400. Output = 800
+    concat_layer2_layer3 = tf.concat_v2([conv3_flat, conv2_flat], 1)
+    
+    # Dropout
+    concat_layer2_layer3 = tf.nn.dropout(concat_layer2_layer3, keep_prob)
+    
 
+    # TODO: Layer 4: Fully Connected. Input = 800. Output = 43.
+    logits = tf.add(tf.matmul(concat_layer2_layer3,weights['wfc']),biases['bfc'])
+    
+    return logits
+```
 
+#### 3. Description of how I trained my model
+ 
+I used the Adam optimizer. The final settings used were:
+* batch size: 96
+* epochs: 60
+* learning rate: 0.0009
+* mu: 0
+* sigma: 0.1
+* dropout keep probability: 0.5
+
+#### 4. What approach did I take in coming up with a solution to this problem?
+
+I have tried multiple batch sizes ranging from 32 to 128 in increments of 32 and epochs ranging from 10 to 100 and learning rate ranging 
+from 0.001 to 0.0001 and experimented with multiple keep probabilities ranging from 0.4 to 0.9 and I found that the above hyper parameters are the optimal ones for this architecture for this type of input data.
+
+Initially I tried with the Lenet Architecture as it is and used the same hyper parameters which resulted in very low training and testing accuracy of 88% and 83%. Then I had tweaked the Epochs (Increased), Batch size (Decreased) and Learning rate (Decreased) which improved the accuracy and brought it to around 93% and 91% respectively. Then I had experimented with Dropout, keeping dropout only at the fully connected layer before the logits, keeping it after the ReLU layers of each convolution layer etc and tried multiple keep probability values and they helped to bring the accuracies close to 96% and 94%. 
+
+Finally I had tried this Sermanet/LeCunn model with all the prior knowledge about the trial and error of hyper parameters and could achieve a training accuracy of 99% and testing accuracy of 95.1%
+  
