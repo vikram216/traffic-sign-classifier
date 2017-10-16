@@ -374,4 +374,114 @@ from 0.001 to 0.0001 and experimented with multiple keep probabilities ranging f
 Initially I tried with the Lenet Architecture as it is and used the same hyper parameters which resulted in very low training and testing accuracy of 88% and 83%. Then I had tweaked the Epochs (Increased), Batch size (Decreased) and Learning rate (Decreased) which improved the accuracy and brought it to around 93% and 91% respectively. Then I had experimented with Dropout, keeping dropout only at the fully connected layer before the logits, keeping it after the ReLU layers of each convolution layer etc and tried multiple keep probability values and they helped to bring the accuracies close to 96% and 94%. 
 
 Finally I had tried this Sermanet/LeCunn model with all the prior knowledge about the trial and error of hyper parameters and could achieve a training accuracy of 99% and testing accuracy of 95.1%
+
+### Test the Model on New Images
+
+Here are eight German traffic signs that I found on the web:
+
+![Original Image](new_images/1.png)
+![Original Image](new_images/2.png)
+![Original Image](new_images/3.png)
+![Original Image](new_images/5.png)
+![Original Image](new_images/6.png)
+![Original Image](new_images/8.png)
+![Original Image](new_images/9.png)
+![Original Image](new_images/10.png)
+
+```
+### Load the images and plot them here.
+### Feel free to use as many code cells as needed.
+
+import glob
+import matplotlib.image as mpimg
+
+fig, axs = plt.subplots(8,1, figsize=(40, 20))
+fig.subplots_adjust(hspace = .2, wspace=.001)
+axs = axs.ravel()
+
+my_images = []
+
+for i, img in enumerate(glob.glob('./new_images/*.png')):
+    image = cv2.imread(img)
+    print(i)
+    axs[i].axis('off')
+    axs[i].imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    my_images.append(image)
+
+my_images = np.asarray(my_images)
+
+my_images_gry = np.sum(my_images/3, axis=3, keepdims=True)
+
+my_images_normalized = (my_images_gry-128)/128 
+
+print(my_images_normalized.shape)
+```
+
+#### 1. what quality or qualities might be difficult to classify?
+
+These images are more clear and brighter than the images in the original dataset. This is a test if this model can achieve illumination invariance and I think there might be some ambiguity in correctly classifying the speed limit values.
+
+#### 2. Discuss the model's predictions on these new traffic signs and compare the results to predicting on the test set. At a minimum, discuss what the predictions were, the accuracy on these new predictions, and compare the accuracy to the accuracy on the test set.
+
+The model has predicted the images with 100% accuracy which is better than the test accuracy which was 95.1%. This is a good sign that the model performs well on real-world data.
+
+```
+my_labels = [18, 1, 12, 3, 34, 11, 38, 25]
+
+
+with tf.Session() as sess:
+    sess.run(tf.global_variables_initializer())
+    saver = tf.train.import_meta_graph('./lenet.meta')
+    #saver3.restore(sess, "./lenet")
+    saver.restore(sess, tf.train.latest_checkpoint('.'))
+    my_accuracy = evaluate(my_images_normalized, my_labels)
+    print("Test Set Accuracy = {:.3f}".format(my_accuracy))
+```
+Test Set Accuracy = 1.000      
+
+```
+### Visualize the softmax probabilities here.
+### Feel free to use as many code cells as needed.
+
+softmax_logits = tf.nn.softmax(logits)
+top_k = tf.nn.top_k(softmax_logits, k=3)
+
+
+with tf.Session() as sess:
+    sess.run(tf.global_variables_initializer())
+    saver = tf.train.import_meta_graph('./lenet.meta')
+    saver.restore(sess, tf.train.latest_checkpoint('.'))
+    my_softmax_logits = sess.run(softmax_logits, feed_dict={x: my_images_normalized, keep_prob: 1.0})
+    my_top_k = sess.run(top_k, feed_dict={x: my_images_normalized, keep_prob: 1.0})
+
+    
+    fig, axs = plt.subplots(len(my_images),4, figsize=(12, 14))
+    fig.subplots_adjust(hspace = .4, wspace=.2)
+    axs = axs.ravel()
+
+    for i, image in enumerate(my_images):
+        axs[4*i].axis('off')
+        axs[4*i].imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+        axs[4*i].set_title('input')
+        guess1 = my_top_k[1][i][0]
+        index1 = np.argwhere(y_valid == guess1)[0]
+        axs[4*i+1].axis('off')
+        axs[4*i+1].imshow(X_valid[index1].squeeze())
+        axs[4*i+1].set_title('top guess: {} ({:.0f}%)'.format(guess1, 100*my_top_k[0][i][0]))
+        guess2 = my_top_k[1][i][1]
+        index2 = np.argwhere(y_valid == guess2)[0]
+        axs[4*i+2].axis('off')
+        axs[4*i+2].imshow(X_valid[index2].squeeze())
+        axs[4*i+2].set_title('2nd guess: {} ({:.0f}%)'.format(guess2, 100*my_top_k[0][i][1]))
+        guess3 = my_top_k[1][i][2]
+        index3 = np.argwhere(y_valid == guess3)[0]
+        axs[4*i+3].axis('off')
+        axs[4*i+3].imshow(X_valid[index3].squeeze())
+        axs[4*i+3].set_title('3rd guess: {} ({:.0f}%)'.format(guess3, 100*my_top_k[0][i][2]))
+        
+  ```
+  
+  
+
+
   
