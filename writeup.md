@@ -251,6 +251,46 @@ print(y_train.shape)
 (10942, 32, 32, 1)   
 (43768,)   
 
+Since generating this additional data is a time consuming process and I didn't want to do this step every time I restart the notebook. Hence I have saved this data to disk using the following code.
+
+```
+aug_train = {'features': X_train,
+             'labels': y_train}
+aug_val = {'features': X_valid,
+             'labels': y_valid}
+aug_test = {'features': X_test,
+             'labels': y_test}
+pickle.dump(aug_train, open( "./my-augmented-data/aug_train1.p", "wb" ) )
+pickle.dump(aug_val, open( "./my-augmented-data/aug_val1.p", "wb" ) )
+pickle.dump(aug_test, open( "./my-augmented-data/aug_test1.p", "wb" ) )
+
+print('done')
+```
+
+#### 2. Description of the final CNN model architecture
+
+Here is a modified version of LeNet Architecture that I had adapted in this project. Taken from ![here](http://yann.lecun.com/exdb/publis/pdf/sermanet-ijcnn-11.pdf) 
+
+![Original Image](folder_for_writeup/modifiedLeNet.jpeg)
+
+Here is a description of each layer in this model
+
+|Layer             | Description                                |
+|------------------|:------------------------------------------:|
+|Input             | 32x32x1 gray scale image                   |
+|Convolution 5x5   | 1x1 stride, Valid padding, output 28x28x6  |
+|ReLU Activation   | ReLU Activation unit, output 28x28x6       |
+|Max Pooling       | 2x2 stride, Valid padding, output 14x14x6  |
+|Convolution 5x5   | 1x1 stride, Valid padding, output 10x10x16 |
+|ReLU Activation   | ReLU Activation unit, output 10x10x16      |
+|Max Pooling       | 2x2 stride, Valid padding, output 5x5x16   |
+|Convolution 5x5   | 1x1 stride, Valid padding, output 1x1x400  |
+|ReLU Activation   | ReLU Activation unit, output 1x1x400       |
+|Flatten layer     | Flatten Relu output layer 1x1x400 and Max Pooling layer with output 5x5x16.|
+|Concatenate layer | Concatenate flattened layers to a single layer, output 800 |
+|Dropout layer     | Dropout with a keep probability of 0.5 for training 1.0 for testing |
+|Fully connected layer| Fully connected layer with logits output 800x43 |
+
 
 
 
