@@ -480,6 +480,31 @@ with tf.Session() as sess:
         axs[4*i+3].set_title('3rd guess: {} ({:.0f}%)'.format(guess3, 100*my_top_k[0][i][2]))
         
   ```
+  ![Original Image](folder_for_writeup/image_softmaxprob.png)
+  
+#### 4. Describe how certain the model is when predicting on each of the five new images by looking at the softmax probabilities for each prediction. Provide the top 5 softmax probabilities for each image along with the sign type of each probability.
+
+This model is 100% certain on 7 of the 8 images that I fed it. As I guessed earlier there might be little confusion in predicting the correct speed limit, it predicted with 99% accuracy the speed limit is 60 km/hr and with 1% probability that it is 80 km/hr. This very high level of certainty, along with achieving 100% accuracy, on the newly introduced real-world data is indicative of a model that performs very well.
+
+```
+fig, axs = plt.subplots(8,2, figsize=(9, 19))
+axs = axs.ravel()
+
+for i in range(len(my_softmax_logits)*2):
+    if i%2 == 0:
+        axs[i].axis('off')
+        axs[i].imshow(cv2.cvtColor(my_images[i//2], cv2.COLOR_BGR2RGB))
+    else:
+        axs[i].bar(np.arange(n_classes), my_softmax_logits[(i-1)//2]) 
+        axs[i].set_ylabel('Softmax probability')
+```
+
+![Original Image](folder_for_writeup/image_prob_chart.png)
+
+
+
+
+  
   
   
 
